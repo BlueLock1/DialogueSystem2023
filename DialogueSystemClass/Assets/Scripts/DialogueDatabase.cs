@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Dialogue System/Dialogue Data")]
-public class DialogieDatabase : ScriptableObject
+public class DialogueDatabase : ScriptableObject
 {
     public DialogueLineData[] data;
 }

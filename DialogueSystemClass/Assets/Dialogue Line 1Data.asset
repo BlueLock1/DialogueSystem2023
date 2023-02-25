@@ -12,4 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b16db929e6ae24766b6482a8ea558712, type: 3}
   m_Name: Dialogue Line 1Data
   m_EditorClassIdentifier: 
-  text: 
+  text: Hello
+  responses:
+  - {fileID: 11400000, guid: ecb9180d8624e421ab3b58a2581e07f6, type: 2}
+  karmaScore: 10
+  dialogueAudio: {fileID: 0}
+  character: 0

@@ -12,4 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f647d4e00697f4a70854b31b5c3315b0, type: 3}
   m_Name: New Dialogie Database
   m_EditorClassIdentifier: 
-  data: []
+  data:
+  - {fileID: 11400000, guid: 7aa1904110aa643e898e4a9a065ff9d3, type: 2}
