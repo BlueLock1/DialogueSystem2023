@@ -8,6 +8,7 @@ public class ShowDialogueText : EvtSystem.Event
 {
     public string text;
     public CharacterID id;
+    public float duration;
 }
 
 public class PlayAudio: EvtSystem.Event
@@ -25,4 +26,8 @@ public struct ResponseData
 public class ShowResponses : EvtSystem.Event
 {
     public ResponseData[] responses;
+}
+public class DisableUI : EvtSystem.Event
+{
+
 }

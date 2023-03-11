@@ -9,25 +9,9 @@ namespace EvtSystem
 
     }
 
-    public class PlayerInteract : Event
-    {
-        public Vector3 interactPosition;
-        public Vector3 interactDirection;
-        public float interactDistance;
-    }
-
-    public class MyEvent : Event
-    {
-        int i;
-    }
-
     public class EventDispatcher
     {
         private static EventDispatcher _instance = null;
-
-        private EventDispatcher()
-        {
-        }
 
         public static EventDispatcher Instance
         {

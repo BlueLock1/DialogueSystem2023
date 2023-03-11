@@ -1,37 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using EvtSystem;
 
-public class DialogueManager : MonoBehaviour
+public class DialogueManager : Singleton<DialogueManager>
 {
-    #region SingleStuff
-    static DialogueManager _instance = null;
-
-    public static DialogueManager Instance { get { return _instance; } }
-
-    private void Awake()
-    {
-        if (_instance != null && _instance != this)
-        {
-            Destroy(this.gameObject);
-        }
-        else
-        {
-            _instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-    }
-
-    private void OnDestroy()
-    {
-        if (this == _instance)
-        {
-            _instance = null;
-        }
-    }
-    #endregion
-
     public DialogueDatabase database;
 
     private float dialogueWaitTime = 0.0f;
@@ -58,20 +30,14 @@ public class DialogueManager : MonoBehaviour
 
         if(dialogueDatabase.TryGetValue(dialogueName, out data))
         {
-            StartDialogue(data);
+            if (data != currentDialogue)
+              StartDialogue(data);
         }
     }
     public void StartDialogue(DialogueLineData lineToStart)
     {
-        //SHOW TEXT ON SCREEN
-        ShowDialogueText message = new ShowDialogueText();
-        message.text = lineToStart.text;
-        message.id = lineToStart.character;
-
-        EvtSystem.EventDispatcher.Raise<ShowDialogueText>(message);
-
         //PLAY DIALOGUE AUDIO
-        if (lineToStart.dialogueAudio != null)
+        if(lineToStart.dialogueAudio != null)
         {
             PlayAudio audioMessage = new PlayAudio();
             audioMessage.clipToPlay = lineToStart.dialogueAudio;
@@ -84,12 +50,19 @@ public class DialogueManager : MonoBehaviour
         {
             dialogueWaitTime = kDefaultWaitTime;
         }
-        currentDialogue = lineToStart;
+        //SHOW TEXT ON SCREEN
+        ShowDialogueText message = new ShowDialogueText();
+        message.text = lineToStart.text;
+        message.id = lineToStart.character;
+        message.duration = dialogueWaitTime;
+
+        EvtSystem.EventDispatcher.Raise<ShowDialogueText>(message);
         currentTime = 0.0f;
     }
 
-    private void PlayresponseLine(int currentResponseIndex)
+    private void PlayResponseLine(int currentResponseIndex)
     {
+        EvtSystem.EventDispatcher.Raise<DisableUI>(new DisableUI());
         if (currentDialogue.responses.Length > currentResponseIndex)
         {
             DialogueLineData line = currentDialogue.responses[currentResponseIndex];
@@ -98,8 +71,8 @@ public class DialogueManager : MonoBehaviour
     }
     private void CreateResponseMessage()
     {
-        int numResponses = currentDualogi.responses.Length;
-        if (numResponses > 0)
+        int numResponses = currentDialogue.responses.Length;
+        if (numResponses > 1)
         {
             ShowResponses responseMessage = new ShowResponses();
 
@@ -111,11 +84,20 @@ public class DialogueManager : MonoBehaviour
                 responseMessage.responses[index].text = response.text;
                 responseMessage.responses[index].karmaScore = response.karmaScore;
                 int currentIndex = index;
-                responseMessage.responses[index].buttonAction = () => { this.PlayResponseLine(currentIndex)};
+                responseMessage.responses[index].buttonAction = () => { this.PlayResponseLine(currentIndex); };
                 index++;
             }
 
             EvtSystem.EventDispatcher.Raise<ShowResponses>(responseMessage);
+        }
+        else if (numResponses == 1)
+        {
+            PlayResponseLine(0);
+        }
+        else
+        {
+            EvtSystem.EventDispatcher.Raise<DisableUI>(new DisableUI());
+            currentDialogue = null;
         }
     }
 
@@ -123,8 +105,10 @@ public class DialogueManager : MonoBehaviour
     {
         if(currentDialogue != null && dialogueWaitTime > 0.0f)
         {
+            bool shouldSkip = Input.GetKeyUp(KeyCode.Space);
+
             currentTime += Time.deltaTime;
-            if(currentTime >= dialogueWaitTime)
+            if(currentTime >= dialogueWaitTime || shouldSkip)
             {
                 dialogueWaitTime = 0.0f;
                 CreateResponseMessage();
